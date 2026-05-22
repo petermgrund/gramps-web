@@ -338,5 +338,18 @@
   "Recently changed": "Recently changed",
   "Recently browsed": "Recently browsed",
   "An error occurred": "An error occurred",
-  "Assistant": "Assistant"
+  "Assistant": "Assistant",
+  "Assignee": "Assignee",
+  "Unassigned": "Unassigned",
+  "Related records": "Related records",
+  "Add related record": "Add related record",
+  "Subtasks": "Subtasks",
+  "Add subtask": "Add subtask",
+  "Updates": "Updates",
+  "Add update": "Add update",
+  "No updates yet": "No updates yet",
+  "Group by": "Group by",
+  "Sort by": "Sort by",
+  "Last updated": "Last updated",
+  "All": "All"
 }
