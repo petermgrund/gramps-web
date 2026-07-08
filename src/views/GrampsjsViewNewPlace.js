@@ -6,6 +6,7 @@ import '@material/web/button/outlined-button.js'
 import {mdiMapMarker} from '@mdi/js'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
+import {parseCoordinatePair} from '../util.js'
 import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
@@ -74,6 +75,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
           style="width:150px;"
           value="${this.data.lat ?? ''}"
           label="${this._('Latitude')}"
+          @paste="${this._handleCoordPaste}"
           .appState="${this.appState}"
         ></grampsjs-form-string>
         <grampsjs-form-string
@@ -81,6 +83,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
           style="width:150px;"
           value="${this.data.long ?? ''}"
           label="${this._('Longitude')}"
+          @paste="${this._handleCoordPaste}"
           .appState="${this.appState}"
         ></grampsjs-form-string>
         <md-outlined-button
@@ -150,6 +153,17 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
     }
     this.checkFormValidity()
+  }
+
+  // when pasting a "latitude, longitude" pair into either field,
+  // split it across both fields instead of inserting the raw string
+  _handleCoordPaste(e) {
+    const coords = parseCoordinatePair(e.clipboardData?.getData('text'))
+    if (coords === null) {
+      return
+    }
+    e.preventDefault()
+    this.data = {...this.data, lat: coords.lat, long: coords.long}
   }
 
   _openLatLongDialog() {

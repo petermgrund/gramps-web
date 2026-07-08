@@ -13,6 +13,7 @@ import {
   GrampsjsNominatimSearchMixin,
   nominatimSearchStyles,
 } from '../mixins/GrampsjsNominatimSearchMixin.js'
+import {parseCoordinatePair} from '../util.js'
 
 class GrampsjsFormEditLatLong extends GrampsjsNominatimSearchMixin(
   GrampsjsObjectForm
@@ -35,6 +36,7 @@ class GrampsjsFormEditLatLong extends GrampsjsNominatimSearchMixin(
         <div style="width:calc(50% - 20px);margin-right:20px;float:left;">
           <grampsjs-form-string
             @formdata:changed="${this._handleFormData}"
+            @paste="${this._handleCoordPaste}"
             fullwidth
             id="lat"
             value="${this.data.lat || ''}"
@@ -46,6 +48,7 @@ class GrampsjsFormEditLatLong extends GrampsjsNominatimSearchMixin(
           <grampsjs-form-string
             fullwidth
             @formdata:changed="${this._handleFormData}"
+            @paste="${this._handleCoordPaste}"
             id="long"
             value="${this.data.long || ''}"
             label="${this._('Longitude')}"
@@ -97,6 +100,25 @@ class GrampsjsFormEditLatLong extends GrampsjsNominatimSearchMixin(
     const {lngLat} = e.detail
     if (lngLat?.lat !== undefined && lngLat?.lng !== undefined) {
       this._setLatLong(lngLat.lat, lngLat.lng)
+    }
+  }
+
+  // when pasting a "latitude, longitude" pair into either field,
+  // split it across both fields instead of inserting the raw string
+  _handleCoordPaste(e) {
+    const coords = parseCoordinatePair(e.clipboardData?.getData('text'))
+    if (coords === null) {
+      return
+    }
+    e.preventDefault()
+    this._setLatLong(coords.lat, coords.long)
+    const map = this.shadowRoot.querySelector('grampsjs-map')
+    if (map !== null) {
+      map.jumpTo(
+        parseFloat(coords.lat),
+        parseFloat(coords.long),
+        map._map?.getZoom() ?? map.zoom
+      )
     }
   }
 

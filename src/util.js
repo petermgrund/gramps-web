@@ -859,4 +859,30 @@ export function apiVersionAtLeast(dbInfo, major, minor, patch = 0) {
   return pat >= patch
 }
 
+/**
+ * Parse a string containing a decimal "latitude, longitude" pair, e.g. as
+ * copied from Google Maps ("42.95025572866536, -85.62599477286248").
+ * Accepts comma, semicolon, or whitespace as separator and optional
+ * surrounding parentheses. Returns {lat, long} as strings, or null if the
+ * string is not a coordinate pair with both values in valid range.
+ */
+export function parseCoordinatePair(text) {
+  if (typeof text !== 'string') {
+    return null
+  }
+  const match = text
+    .trim()
+    .match(
+      /^\(?\s*([+-]?\d+(?:\.\d+)?)\s*(?:[,;]|\s)\s*([+-]?\d+(?:\.\d+)?)\s*\)?$/
+    )
+  if (match === null) {
+    return null
+  }
+  const [, lat, long] = match
+  if (Math.abs(parseFloat(lat)) > 90 || Math.abs(parseFloat(long)) > 180) {
+    return null
+  }
+  return {lat, long}
+}
+
 //

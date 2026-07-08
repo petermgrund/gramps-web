@@ -16,6 +16,7 @@ import {
   normalizeRect,
   isValidRect,
   apiVersionAtLeast,
+  parseCoordinatePair,
 } from '../../src/util.js'
 
 // Helpers
@@ -374,5 +375,76 @@ describe('apiVersionAtLeast', () => {
 
   it('defaults patch to 0 when not specified', () => {
     expect(apiVersionAtLeast(dbInfo('3.9.0'), 3, 9)).to.be.true
+  })
+})
+
+describe('parseCoordinatePair', () => {
+  it('splits a comma-separated pair', () => {
+    expect(parseCoordinatePair('42.95025572866536, -85.62599477286248')).to.eql(
+      {lat: '42.95025572866536', long: '-85.62599477286248'}
+    )
+  })
+
+  it('splits a pair without a space after the comma', () => {
+    expect(parseCoordinatePair('42.95,-85.626')).to.eql({
+      lat: '42.95',
+      long: '-85.626',
+    })
+  })
+
+  it('splits a whitespace-separated pair', () => {
+    expect(parseCoordinatePair('42.95 -85.626')).to.eql({
+      lat: '42.95',
+      long: '-85.626',
+    })
+  })
+
+  it('splits a semicolon-separated pair', () => {
+    expect(parseCoordinatePair('42.95; -85.626')).to.eql({
+      lat: '42.95',
+      long: '-85.626',
+    })
+  })
+
+  it('accepts surrounding whitespace and parentheses', () => {
+    expect(parseCoordinatePair('  (55.6736, 12.5891)  ')).to.eql({
+      lat: '55.6736',
+      long: '12.5891',
+    })
+  })
+
+  it('accepts integer coordinates and explicit plus signs', () => {
+    expect(parseCoordinatePair('+42, -85')).to.eql({lat: '+42', long: '-85'})
+  })
+
+  it('rejects a single number', () => {
+    expect(parseCoordinatePair('42.95025572866536')).to.be.null
+  })
+
+  it('rejects an incomplete pair', () => {
+    expect(parseCoordinatePair('42.95, ')).to.be.null
+    expect(parseCoordinatePair('42.95,')).to.be.null
+  })
+
+  it('rejects out-of-range values', () => {
+    expect(parseCoordinatePair('91, 100')).to.be.null
+    expect(parseCoordinatePair('42, 181')).to.be.null
+    expect(parseCoordinatePair('-90.5, 0')).to.be.null
+  })
+
+  it('accepts boundary values', () => {
+    expect(parseCoordinatePair('90, 180')).to.eql({lat: '90', long: '180'})
+    expect(parseCoordinatePair('-90, -180')).to.eql({lat: '-90', long: '-180'})
+  })
+
+  it('rejects non-coordinate text', () => {
+    expect(parseCoordinatePair('Copenhagen, Denmark')).to.be.null
+    expect(parseCoordinatePair('')).to.be.null
+    expect(parseCoordinatePair(undefined)).to.be.null
+    expect(parseCoordinatePair(null)).to.be.null
+  })
+
+  it('rejects DMS-style strings', () => {
+    expect(parseCoordinatePair(`42°57'00.9"N 85°37'33.6"W`)).to.be.null
   })
 })
