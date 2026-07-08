@@ -39,6 +39,13 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
           text-align: center;
         }
 
+        /* grampsjs-img is display:block in its shadow root; make it
+           inline-block here so text-align actually centers the photo */
+        #img-container grampsjs-img {
+          display: inline-block;
+          max-width: 100%;
+        }
+
         #image {
           margin-top: 2em;
           margin-bottom: 3em;
