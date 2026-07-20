@@ -39,6 +39,13 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
           text-align: center;
         }
 
+        /* the image inside grampsjs-img is a block element in the shadow
+           DOM, so text-align does not center it; flex on the host does */
+        #img-container grampsjs-img {
+          display: flex;
+          justify-content: center;
+        }
+
         #image {
           margin-top: 2em;
           margin-bottom: 3em;
